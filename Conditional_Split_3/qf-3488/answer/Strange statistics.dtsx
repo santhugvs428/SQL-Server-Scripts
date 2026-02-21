@@ -1,0 +1,2033 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="4/20/2017 8:53:27 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="HUMPH"
+  DTS:CreatorName="WISEOWL\Andy.Brown"
+  DTS:DTSID="{48FC28C0-563A-4F84-AE5F-31DA85897466}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="13.0.1601.5"
+  DTS:LocaleID="2057"
+  DTS:ObjectName="Strange statistics"
+  DTS:PackageType="5"
+  DTS:VersionBuild="3"
+  DTS:VersionGUID="{DC64773B-8D21-4956-B9C8-2259DA39C11D}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[Shopping history]"
+      DTS:CreationName="EXCEL"
+      DTS:DTSID="{93D4B87A-7A0D-41DF-AC68-3A220C439A5E}"
+      DTS:ObjectName="Shopping history">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\ajb\Shopping history.xlsx;Extended Properties=&quot;Excel 12.0 XML;HDR=YES&quot;;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Delete old statistics"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{13EC9F26-175D-4D50-981A-551F334DAE77}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Delete old statistics"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{548C867D-C15A-45F2-BD64-686786072B0E}"
+          SQLTask:SqlStatementSource="TRUNCATE TABLE WeirdStats" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Get statistics"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{BF2BD4C5-1E2F-475F-AF49-CA4BCFF630D5}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Get statistics"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\Get statistics\Calculate amount"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="Calculate amount"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\Get statistics\Calculate amount.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Calculate amount.Inputs[Derived Column Input].Columns[Quantity]"
+                      cachedDataType="r8"
+                      cachedName="Quantity"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Quantity]" />
+                    <inputColumn
+                      refId="Package\Get statistics\Calculate amount.Inputs[Derived Column Input].Columns[Price]"
+                      cachedDataType="r8"
+                      cachedName="Price"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Price]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Get statistics\Calculate amount.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\Get statistics\Calculate amount.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Calculate amount.Outputs[Derived Column Output].Columns[Spending]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\Get statistics\Calculate amount.Outputs[Derived Column Output].Columns[Spending]"
+                      name="Spending"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">#{Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Quantity]} * #{Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Price]}</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">Quantity * Price</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Get statistics\Calculate amount.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\Get statistics\Calculate amount.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Calculate amount.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Calculate amount.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Get statistics\Calculate amount.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Calculate amount.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Get statistics\Get all possible statistics"
+              componentClassID="Microsoft.Aggregate"
+              contactInfo="Aggregate;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;3"
+              description="Aggregates data with functions such as Average, Sum, Count, Max, and Min. For example, group data to compute the sum of sales per product or the average visits per day."
+              name="Get all possible statistics"
+              version="3">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the approximate number of group by keys that the aggregation produces. Low indicates 500,000 key values, Medium indicates 5 million key values, and High indicates more than 25 million key values. Unspecified indicates no KeyScale value is used."
+                  name="KeyScale"
+                  typeConverter="KeyScaleType">0</property>
+                <property
+                  dataType="System.Null"
+                  description="Specifies the exact number of group by keys that the aggregation produces. If a KeyScale value is specified, the value in Keys takes precedence."
+                  name="Keys" />
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the approximate number of distinct values in a column that the aggregation counts distinctly. Low indicates 500,000 key values, Medium indicates 5 million key values, and High indicates more than 25 million key values. Unspecified indicates no CountDistinctScale value is used."
+                  name="CountDistinctScale"
+                  typeConverter="KeyScaleType">0</property>
+                <property
+                  dataType="System.Null"
+                  description="Specifies the exact number of distinct values in a column that the aggregation counts distinctly. If a CountDistinctScale value is specified, the value in CountDistinctKeys takes precedence."
+                  name="CountDistinctKeys" />
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage by which memory can be extended during the aggregation. Valid values are between 1 and 100."
+                  name="AutoExtendFactor">25</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\Get statistics\Get all possible statistics.Inputs[Aggregate Input 1]"
+                  name="Aggregate Input 1">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Get all possible statistics.Inputs[Aggregate Input 1].Columns[Store]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="Store"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Store]" />
+                    <inputColumn
+                      refId="Package\Get statistics\Get all possible statistics.Inputs[Aggregate Input 1].Columns[Spending]"
+                      cachedDataType="r8"
+                      cachedName="Spending"
+                      lineageId="Package\Get statistics\Calculate amount.Outputs[Derived Column Output].Columns[Spending]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1]"
+                  name="Aggregate Output 1">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the approximate number of group by keys that the aggregation produces. Low indicates 500,000 key values, Medium indicates 5 million key values, and High indicates more than 25 million key values. Unspecified indicates no KeyScale value is used."
+                      name="KeyScale"
+                      typeConverter="KeyScaleType">0</property>
+                    <property
+                      dataType="System.Null"
+                      description="Specifies the exact number of group by keys that the aggregation produces. If a KeyScale value is specified, the value in Keys takes precedence."
+                      name="Keys" />
+                  </properties>
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[Store]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[Store]"
+                      name="Store">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Store]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">0</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MaxSpend]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MaxSpend]"
+                      name="MaxSpend">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\Get statistics\Calculate amount.Outputs[Derived Column Output].Columns[Spending]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">7</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MinSpend]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MinSpend]"
+                      name="MinSpend">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\Get statistics\Calculate amount.Outputs[Derived Column Output].Columns[Spending]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">6</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[AvgSpend]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[AvgSpend]"
+                      name="AvgSpend">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\Get statistics\Calculate amount.Outputs[Derived Column Output].Columns[Spending]}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">5</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[NumberPurchases]"
+                      dataType="ui8"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[NumberPurchases]"
+                      name="NumberPurchases">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the ID of the input column used in the aggregation."
+                          name="AggregationColumnId">#{Package\Get statistics\0:invalid}</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the type of aggregation."
+                          name="AggregationType"
+                          typeConverter="AggregationType">2</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Indicates whether the column requires special handling because it may contain oversized data or it requires precision beyond a float data type."
+                          name="IsBig">1</property>
+                        <property
+                          dataType="System.Int32"
+                          description="Specifies the string comparison options."
+                          name="AggregationComparisonFlags">0</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Get statistics\Get statistic to show - cheap"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="Get statistic to show - cheap"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\Get statistics\Get statistic to show - cheap.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Get statistic to show - cheap.Inputs[Derived Column Input].Columns[MinSpend]"
+                      cachedDataType="r8"
+                      cachedName="MinSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MinSpend]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\Get statistics\Get statistic to show - cheap.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Output].Columns[StatisticName]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="8"
+                      lineageId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Output].Columns[StatisticName]"
+                      name="StatisticName"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">(DT_WSTR,8)"Smallest"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">(DT_WSTR,8)"Smallest"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Output].Columns[StatisticAmouont]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Output].Columns[StatisticAmouont]"
+                      name="StatisticAmouont"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">#{Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MinSpend]}</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">MinSpend</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\Get statistics\Get statistic to show - cheap.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Get statistics\Get statistic to show - normal"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="Get statistic to show - normal"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\Get statistics\Get statistic to show - normal.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Get statistic to show - normal.Inputs[Derived Column Input].Columns[AvgSpend]"
+                      cachedDataType="r8"
+                      cachedName="AvgSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[AvgSpend]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\Get statistics\Get statistic to show - normal.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Output].Columns[StatisticName]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="8"
+                      lineageId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Output].Columns[StatisticName]"
+                      name="StatisticName"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">(DT_WSTR,8)"Normal"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">(DT_WSTR,8)"Normal"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Output].Columns[StatisticAmouont]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Output].Columns[StatisticAmouont]"
+                      name="StatisticAmouont"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">#{Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[AvgSpend]}</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">AvgSpend</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\Get statistics\Get statistic to show - normal.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Get statistics\Get statistic to show - posh"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="Get statistic to show - posh"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\Get statistics\Get statistic to show - posh.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Get statistic to show - posh.Inputs[Derived Column Input].Columns[MaxSpend]"
+                      cachedDataType="r8"
+                      cachedName="MaxSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MaxSpend]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\Get statistics\Get statistic to show - posh.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Output].Columns[StatisticName]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="8"
+                      lineageId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Output].Columns[StatisticName]"
+                      name="StatisticName"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">(DT_WSTR,8)"Biggest"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">(DT_WSTR,8)"Biggest"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Output].Columns[StatisticAmouont]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Output].Columns[StatisticAmouont]"
+                      name="StatisticAmouont"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">#{Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MaxSpend]}</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">MaxSpend</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\Get statistics\Get statistic to show - posh.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Get statistics\Recombine data"
+              componentClassID="Microsoft.UnionAll"
+              contactInfo="Union All;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
+              description="Combines rows from multiple data flows without sorting. For example, add rows back to a data flow after correction of errors. If sorting is important, we recommend using the Merge transformation."
+              name="Recombine data"
+              version="1">
+              <inputs>
+                <input
+                  refId="Package\Get statistics\Recombine data.Inputs[Union All Input 1]"
+                  name="Union All Input 1">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 1].Columns[Store]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="Store"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[Store]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[Store]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 1].Columns[MaxSpend]"
+                      cachedDataType="r8"
+                      cachedName="MaxSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MaxSpend]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MaxSpend]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 1].Columns[MinSpend]"
+                      cachedDataType="r8"
+                      cachedName="MinSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MinSpend]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MinSpend]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 1].Columns[AvgSpend]"
+                      cachedDataType="r8"
+                      cachedName="AvgSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[AvgSpend]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[AvgSpend]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 1].Columns[NumberPurchases]"
+                      cachedDataType="ui8"
+                      cachedName="NumberPurchases"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[NumberPurchases]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[NumberPurchases]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 1].Columns[StatisticName]"
+                      cachedDataType="wstr"
+                      cachedLength="8"
+                      cachedName="StatisticName"
+                      lineageId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Output].Columns[StatisticName]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticName]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 1].Columns[StatisticAmouont]"
+                      cachedDataType="r8"
+                      cachedName="StatisticAmouont"
+                      lineageId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Output].Columns[StatisticAmouont]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticAmouont]}</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+                <input
+                  refId="Package\Get statistics\Recombine data.Inputs[Union All Input 2]"
+                  hasSideEffects="true"
+                  name="Union All Input 2">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 2].Columns[Store]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="Store"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[Store]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[Store]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 2].Columns[MaxSpend]"
+                      cachedDataType="r8"
+                      cachedName="MaxSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MaxSpend]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MaxSpend]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 2].Columns[MinSpend]"
+                      cachedDataType="r8"
+                      cachedName="MinSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MinSpend]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MinSpend]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 2].Columns[AvgSpend]"
+                      cachedDataType="r8"
+                      cachedName="AvgSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[AvgSpend]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[AvgSpend]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 2].Columns[NumberPurchases]"
+                      cachedDataType="ui8"
+                      cachedName="NumberPurchases"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[NumberPurchases]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[NumberPurchases]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 2].Columns[StatisticName]"
+                      cachedDataType="wstr"
+                      cachedLength="8"
+                      cachedName="StatisticName"
+                      lineageId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Output].Columns[StatisticName]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticName]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 2].Columns[StatisticAmouont]"
+                      cachedDataType="r8"
+                      cachedName="StatisticAmouont"
+                      lineageId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Output].Columns[StatisticAmouont]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticAmouont]}</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+                <input
+                  refId="Package\Get statistics\Recombine data.Inputs[Union All Input 3]"
+                  hasSideEffects="true"
+                  name="Union All Input 3">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 3].Columns[Store]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="Store"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[Store]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[Store]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 3].Columns[MaxSpend]"
+                      cachedDataType="r8"
+                      cachedName="MaxSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MaxSpend]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MaxSpend]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 3].Columns[MinSpend]"
+                      cachedDataType="r8"
+                      cachedName="MinSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[MinSpend]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MinSpend]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 3].Columns[AvgSpend]"
+                      cachedDataType="r8"
+                      cachedName="AvgSpend"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[AvgSpend]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[AvgSpend]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 3].Columns[NumberPurchases]"
+                      cachedDataType="ui8"
+                      cachedName="NumberPurchases"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[NumberPurchases]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[NumberPurchases]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 3].Columns[StatisticAmouont]"
+                      cachedDataType="r8"
+                      cachedName="StatisticAmouont"
+                      lineageId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Output].Columns[StatisticAmouont]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticAmouont]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\Get statistics\Recombine data.Inputs[Union All Input 3].Columns[StatisticName]"
+                      cachedDataType="wstr"
+                      cachedLength="8"
+                      cachedName="StatisticName"
+                      lineageId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Output].Columns[StatisticName]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticName]}</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+                <input
+                  refId="Package\Get statistics\Recombine data.Inputs[Union All Input 4]"
+                  dangling="true"
+                  hasSideEffects="true"
+                  name="Union All Input 4">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Get statistics\Recombine data.Outputs[Union All Output 1]"
+                  name="Union All Output 1">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[Store]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[Store]"
+                      name="Store" />
+                    <outputColumn
+                      refId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MaxSpend]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MaxSpend]"
+                      name="MaxSpend" />
+                    <outputColumn
+                      refId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MinSpend]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[MinSpend]"
+                      name="MinSpend" />
+                    <outputColumn
+                      refId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[AvgSpend]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[AvgSpend]"
+                      name="AvgSpend" />
+                    <outputColumn
+                      refId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[NumberPurchases]"
+                      dataType="ui8"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[NumberPurchases]"
+                      name="NumberPurchases" />
+                    <outputColumn
+                      refId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticName]"
+                      dataType="wstr"
+                      length="8"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticName]"
+                      name="StatisticName" />
+                    <outputColumn
+                      refId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticAmouont]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticAmouont]"
+                      name="StatisticAmouont" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Get statistics\Shopping purchases"
+              componentClassID="Microsoft.ExcelSource"
+              contactInfo="Excel Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
+              description="Excel Source"
+              name="Shopping purchases"
+              usesDispositions="true"
+              version="1">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">Purchases$</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">0</property>
+                <property
+                  dataType="System.String"
+                  description="The mapping from parameters in the SQL command to variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Get statistics\Shopping purchases.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Shopping history]"
+                  connectionManagerRefId="Package.ConnectionManagers[Shopping history]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output]"
+                  name="Excel Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Id]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Id]"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Id]"
+                      name="Id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[ShopDate]"
+                      dataType="date"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[ShopDate]"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[ShopDate]"
+                      name="ShopDate"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Store]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Store]"
+                      length="255"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Store]"
+                      name="Store"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Item]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Item]"
+                      length="255"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Item]"
+                      name="Item"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Shelf]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Shelf]"
+                      length="255"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Shelf]"
+                      name="Shelf"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Unit]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Unit]"
+                      length="255"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Unit]"
+                      name="Unit"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Quantity]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Quantity]"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Quantity]"
+                      name="Quantity"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Price]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Price]"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].Columns[Price]"
+                      name="Price"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Id]"
+                      dataType="r8"
+                      name="Id" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[ShopDate]"
+                      dataType="date"
+                      name="ShopDate" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Store]"
+                      dataType="wstr"
+                      length="255"
+                      name="Store" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Item]"
+                      dataType="wstr"
+                      length="255"
+                      name="Item" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Shelf]"
+                      dataType="wstr"
+                      length="255"
+                      name="Shelf" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Unit]"
+                      dataType="wstr"
+                      length="255"
+                      name="Unit" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Quantity]"
+                      dataType="r8"
+                      name="Quantity" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output].ExternalColumns[Price]"
+                      dataType="r8"
+                      name="Price" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output]"
+                  isErrorOut="true"
+                  name="Excel Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Id]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Id]"
+                      name="Id" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[ShopDate]"
+                      dataType="date"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[ShopDate]"
+                      name="ShopDate" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Store]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Store]"
+                      name="Store" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Item]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Item]"
+                      name="Item" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Shelf]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Shelf]"
+                      name="Shelf" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Unit]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Unit]"
+                      name="Unit" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Quantity]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Quantity]"
+                      name="Quantity" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Price]"
+                      dataType="r8"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[Price]"
+                      name="Price" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Get statistics\Split by store type"
+              componentClassID="Microsoft.ConditionalSplit"
+              contactInfo="Conditional Split;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Routes data rows to different outputs depending on the content of the data. Use conditions (SSIS expressions) to specify which rows are routed. For example, separate records that need to be cleaned from those that are ready to be loaded or route only a subset of records."
+              name="Split by store type"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\Get statistics\Split by store type.Inputs[Conditional Split Input]"
+                  description="Input to the Conditional Split Transformation"
+                  name="Conditional Split Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Split by store type.Inputs[Conditional Split Input].Columns[Store]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="Store"
+                      lineageId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[Store]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Get statistics\Split by store type.Outputs[Posh]"
+                  description="Output 1 of the Conditional Split Transformation"
+                  errorOrTruncationOperation="Computation"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Posh"
+                  synchronousInputId="Package\Get statistics\Split by store type.Inputs[Conditional Split Input]"
+                  truncationRowDisposition="FailComponent">
+                  <properties>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the expression. This expression version uses lineage identifiers instead of column names."
+                      name="Expression">#{Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[Store]} == "Waitrose" || #{Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[Store]} == "Marks and Spencer"</property>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the friendly version of the expression. This expression version uses column names."
+                      expressionType="Notify"
+                      name="FriendlyExpression">Store == "Waitrose" || Store == "Marks and Spencer"</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the position of the condition in the list of conditions that the transformation evaluates. The evaluation order is from the lowest to the highest value."
+                      name="EvaluationOrder">0</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Get statistics\Split by store type.Outputs[Cheap]"
+                  description="Output 2 of the Conditional Split Transformation"
+                  errorOrTruncationOperation="Computation"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="Cheap"
+                  synchronousInputId="Package\Get statistics\Split by store type.Inputs[Conditional Split Input]"
+                  truncationRowDisposition="FailComponent">
+                  <properties>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the expression. This expression version uses lineage identifiers instead of column names."
+                      name="Expression">#{Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1].Columns[Store]} == "Aldi"</property>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the friendly version of the expression. This expression version uses column names."
+                      expressionType="Notify"
+                      name="FriendlyExpression">Store == "Aldi"</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the position of the condition in the list of conditions that the transformation evaluates. The evaluation order is from the lowest to the highest value."
+                      name="EvaluationOrder">1</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Get statistics\Split by store type.Outputs[Normal]"
+                  description="Default Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  name="Normal"
+                  synchronousInputId="Package\Get statistics\Split by store type.Inputs[Conditional Split Input]">
+                  <properties>
+                    <property
+                      dataType="System.Boolean"
+                      name="IsDefaultOut">true</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\Get statistics\Split by store type.Outputs[Conditional Split Error Output]"
+                  description="Error Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Conditional Split Error Output"
+                  synchronousInputId="Package\Get statistics\Split by store type.Inputs[Conditional Split Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Split by store type.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Split by store type.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Get statistics\Split by store type.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Split by store type.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Get statistics\Table of weird statistics"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="Table of weird statistics"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[WeirdStats]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Get statistics\Table of weird statistics.Connections[OleDbConnection]"
+                  connectionManagerID="{548C867D-C15A-45F2-BD64-686786072B0E}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[__sql2016.Wistful]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].Columns[NumberPurchases]"
+                      cachedDataType="ui8"
+                      cachedName="NumberPurchases"
+                      externalMetadataColumnId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].ExternalColumns[NumberPurchases]"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[NumberPurchases]" />
+                    <inputColumn
+                      refId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].Columns[StatisticName]"
+                      cachedDataType="wstr"
+                      cachedLength="8"
+                      cachedName="StatisticName"
+                      externalMetadataColumnId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].ExternalColumns[Statistic]"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticName]" />
+                    <inputColumn
+                      refId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].Columns[Store]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="Store"
+                      externalMetadataColumnId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].ExternalColumns[StoreName]"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[Store]" />
+                    <inputColumn
+                      refId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].Columns[StatisticAmouont]"
+                      cachedDataType="r8"
+                      cachedName="StatisticAmouont"
+                      externalMetadataColumnId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].ExternalColumns[Amount]"
+                      lineageId="Package\Get statistics\Recombine data.Outputs[Union All Output 1].Columns[StatisticAmouont]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].ExternalColumns[StoreName]"
+                      dataType="wstr"
+                      length="255"
+                      name="StoreName" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].ExternalColumns[Statistic]"
+                      dataType="wstr"
+                      length="10"
+                      name="Statistic" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].ExternalColumns[NumberPurchases]"
+                      dataType="i4"
+                      name="NumberPurchases" />
+                    <externalMetadataColumn
+                      refId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input].ExternalColumns[Amount]"
+                      dataType="numeric"
+                      name="Amount"
+                      precision="12"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Get statistics\Table of weird statistics.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Get statistics\Table of weird statistics.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Table of weird statistics.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Get statistics\Table of weird statistics.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Get statistics\Table of weird statistics.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\Get statistics.Paths[Aggregate Output 1]"
+              endId="Package\Get statistics\Split by store type.Inputs[Conditional Split Input]"
+              name="Aggregate Output 1"
+              startId="Package\Get statistics\Get all possible statistics.Outputs[Aggregate Output 1]" />
+            <path
+              refId="Package\Get statistics.Paths[Cheap]"
+              endId="Package\Get statistics\Get statistic to show - cheap.Inputs[Derived Column Input]"
+              name="Cheap"
+              startId="Package\Get statistics\Split by store type.Outputs[Cheap]" />
+            <path
+              refId="Package\Get statistics.Paths[Derived Column Output]"
+              endId="Package\Get statistics\Get all possible statistics.Inputs[Aggregate Input 1]"
+              name="Derived Column Output"
+              startId="Package\Get statistics\Calculate amount.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\Get statistics.Paths[Derived Column Output1]"
+              endId="Package\Get statistics\Recombine data.Inputs[Union All Input 1]"
+              name="Derived Column Output"
+              startId="Package\Get statistics\Get statistic to show - posh.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\Get statistics.Paths[Derived Column Output2]"
+              endId="Package\Get statistics\Recombine data.Inputs[Union All Input 2]"
+              name="Derived Column Output"
+              startId="Package\Get statistics\Get statistic to show - normal.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\Get statistics.Paths[Derived Column Output3]"
+              endId="Package\Get statistics\Recombine data.Inputs[Union All Input 3]"
+              name="Derived Column Output"
+              startId="Package\Get statistics\Get statistic to show - cheap.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\Get statistics.Paths[Excel Source Output]"
+              endId="Package\Get statistics\Calculate amount.Inputs[Derived Column Input]"
+              name="Excel Source Output"
+              startId="Package\Get statistics\Shopping purchases.Outputs[Excel Source Output]" />
+            <path
+              refId="Package\Get statistics.Paths[Normal]"
+              endId="Package\Get statistics\Get statistic to show - normal.Inputs[Derived Column Input]"
+              name="Normal"
+              startId="Package\Get statistics\Split by store type.Outputs[Normal]" />
+            <path
+              refId="Package\Get statistics.Paths[Posh]"
+              endId="Package\Get statistics\Get statistic to show - posh.Inputs[Derived Column Input]"
+              name="Posh"
+              startId="Package\Get statistics\Split by store type.Outputs[Posh]" />
+            <path
+              refId="Package\Get statistics.Paths[Union All Output 1]"
+              endId="Package\Get statistics\Table of weird statistics.Inputs[OLE DB Destination Input]"
+              name="Union All Output 1"
+              startId="Package\Get statistics\Recombine data.Outputs[Union All Output 1]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{16C7C621-2081-4EA0-B8C2-1ADE87CBDD2A}"
+      DTS:From="Package\Delete old statistics"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Get statistics" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="138.4,41.6"
+          Id="Package\Get statistics"
+          TopLeft="52.0000008855548,94.8235307416289" />
+        <NodeLayout
+          Size="169.6,41.6"
+          Id="Package\Delete old statistics"
+          TopLeft="31.4285719637968,16.5176472904773" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="118.714286424676,58.1176472904773">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,36.7058834511516"
+              Start="0,0"
+              End="0,29.2058834511516">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,29.2058834511516" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Get statistics">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="32" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="129.6,51.2"
+          Id="Package\Get statistics\Shopping purchases"
+          TopLeft="63.4285725087536,28" />
+        <NodeLayout
+          Size="129.6,47.2"
+          Id="Package\Get statistics\Calculate amount"
+          TopLeft="225.142860977017,29.8352941433864" />
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Excel Source Output]"
+          TopLeft="193.028572508754,53.5176470716932">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="32.1142884682636,0"
+              Start="0,0"
+              End="24.6142884682636,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="24.6142884682636,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="149.6,44.8"
+          Id="Package\Get statistics\Get all possible statistics"
+          TopLeft="378.857149309042,30.4470588578485" />
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Derived Column Output]"
+          TopLeft="354.742860977017,53.1411765006175">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="24.1142883320244,0"
+              Start="0,0"
+              End="16.6142883320244,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="16.6142883320244,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="164,41.6"
+          Id="Package\Get statistics\Split by store type"
+          TopLeft="232.571432532096,99.5764715920682" />
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Aggregate Output 1]"
+          TopLeft="453.657149309042,75.2470588578485">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-139.085716776945,24.3294127342197"
+              Start="0,0"
+              End="-139.085716776945,16.8294127342197">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,8.16470636710987" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,8.16470636710987"
+                    Point2="0,12.1647063671099"
+                    Point3="-4,12.1647063671099" />
+                  <mssgle:LineSegment
+                    End="-135.085716776945,12.1647063671099" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-135.085716776945,12.1647063671099"
+                    Point2="-139.085716776945,12.1647063671099"
+                    Point3="-139.085716776945,16.1647063671099" />
+                  <mssgle:LineSegment
+                    End="-139.085716776945,16.8294127342197" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="145.6,58.4"
+          Id="Package\Get statistics\Get statistic to show - posh"
+          TopLeft="46.2857150739554,176.658825614296" />
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Posh]"
+          TopLeft="275.571432532096,141.176471592068">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-156.485717458141,35.4823540222273"
+              Start="0,0"
+              End="-156.485717458141,27.9823540222273">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,8.20592978364619" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,8.20592978364619"
+                    Point2="0,12.2059297836462"
+                    Point3="-4,12.2059297836462" />
+                  <mssgle:LineSegment
+                    End="-152.485717458141,12.2059297836462" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-152.485717458141,12.2059297836462"
+                    Point2="-156.485717458141,12.2059297836462"
+                    Point3="-156.485717458141,16.2059297836462" />
+                  <mssgle:LineSegment
+                    End="-156.485717458141,27.9823540222273" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-89.0497923228204,17.2059297836462,21.6138671875,9.7490234375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="158.4,54.4"
+          Id="Package\Get statistics\Get statistic to show - normal"
+          TopLeft="229.142861045137,174.541176865258" />
+        <NodeLayout
+          Size="147.2,62.4"
+          Id="Package\Get statistics\Get statistic to show - cheap"
+          TopLeft="427.371434439446,174.258822259606" />
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Normal]"
+          TopLeft="288.571432532096,141.176471592068">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="19.7714285130407,33.3647052731893"
+              Start="0,0"
+              End="19.7714285130407,25.8647052731893">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,9.53930069056958" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,9.53930069056958"
+                    Point2="0,13.5393006905696"
+                    Point3="4,13.5393006905696" />
+                  <mssgle:LineSegment
+                    End="15.7714285130407,13.5393006905696" />
+                  <mssgle:CubicBezierSegment
+                    Point1="15.7714285130407,13.5393006905696"
+                    Point2="19.7714285130407,13.5393006905696"
+                    Point3="19.7714285130407,17.5393006905696" />
+                  <mssgle:LineSegment
+                    End="19.7714285130407,25.8647052731893" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-6.22141464972966,18.5393006905696,32.2142578125,9.7490234375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Cheap]"
+          TopLeft="353.571432532096,141.176471592068">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="147.400001907349,33.0823506675378"
+              Start="0,0"
+              End="147.400001907349,25.5823506675378">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,7.38032862963302" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,7.38032862963302"
+                    Point2="0,11.380328629633"
+                    Point3="4,11.380328629633" />
+                  <mssgle:LineSegment
+                    End="143.400001907349,11.380328629633" />
+                  <mssgle:CubicBezierSegment
+                    Point1="143.400001907349,11.380328629633"
+                    Point2="147.400001907349,11.380328629633"
+                    Point3="147.400001907349,15.380328629633" />
+                  <mssgle:LineSegment
+                    End="147.400001907349,25.5823506675378" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="59.1915048599246,16.380328629633,29.0169921875,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="154.4,41.6"
+          Id="Package\Get statistics\Recombine data"
+          TopLeft="241.142861249496,266.117650791023" />
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Derived Column Output1]"
+          TopLeft="119.085715073955,235.058825614296">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="162.65714617554,31.0588251767275"
+              Start="0,0"
+              End="162.65714617554,23.5588251767275">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,16.3543404383986" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,16.3543404383986"
+                    Point2="0,20.3543404383986"
+                    Point3="4,20.3543404383986" />
+                  <mssgle:LineSegment
+                    End="158.65714617554,20.3543404383986" />
+                  <mssgle:CubicBezierSegment
+                    Point1="158.65714617554,20.3543404383986"
+                    Point2="162.65714617554,20.3543404383986"
+                    Point3="162.65714617554,24.3543404383986" />
+                  <mssgle:LineSegment
+                    End="162.65714617554,23.5588251767275" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Derived Column Output2]"
+          TopLeft="308.342861045137,228.941176865258">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="10.0000002043585,37.1764739257655"
+              Start="0,0"
+              End="10.0000002043585,29.6764739257655">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,14.5882369628827" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,14.5882369628827"
+                    Point2="0,18.5882369628827"
+                    Point3="4,18.5882369628827" />
+                  <mssgle:LineSegment
+                    End="6.00000020435851,18.5882369628827" />
+                  <mssgle:CubicBezierSegment
+                    Point1="6.00000020435851,18.5882369628827"
+                    Point2="10.0000002043585,18.5882369628827"
+                    Point3="10.0000002043585,22.5882369628827" />
+                  <mssgle:LineSegment
+                    End="10.0000002043585,29.6764739257655" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Derived Column Output3]"
+          TopLeft="500.971434439446,236.658822259606">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-146.02857318995,29.4588285314169"
+              Start="0,0"
+              End="-146.02857318995,21.9588285314169">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,15.3057857608267" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,15.3057857608267"
+                    Point2="0,19.3057857608267"
+                    Point3="-4,19.3057857608267" />
+                  <mssgle:LineSegment
+                    End="-142.02857318995,19.3057857608267" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-142.02857318995,19.3057857608267"
+                    Point2="-146.02857318995,19.3057857608267"
+                    Point3="-146.02857318995,23.3057857608267" />
+                  <mssgle:LineSegment
+                    End="-146.02857318995,21.9588285314169" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="189.6,41.6"
+          Id="Package\Get statistics\Table of weird statistics"
+          TopLeft="233.142861113256,334.635298810781" />
+        <EdgeLayout
+          Id="Package\Get statistics.Paths[Union All Output 1]"
+          TopLeft="318.342861249496,307.717650791023">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="9.5999998637609,26.9176480197578"
+              Start="0,0"
+              End="9.5999998637609,19.4176480197578">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,9.4588240098789" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,9.4588240098789"
+                    Point2="0,13.4588240098789"
+                    Point3="4,13.4588240098789" />
+                  <mssgle:LineSegment
+                    End="5.5999998637609,13.4588240098789" />
+                  <mssgle:CubicBezierSegment
+                    Point1="5.5999998637609,13.4588240098789"
+                    Point2="9.5999998637609,13.4588240098789"
+                    Point3="9.5999998637609,17.4588240098789" />
+                  <mssgle:LineSegment
+                    End="9.5999998637609,19.4176480197578" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Get statistics\Shopping purchases">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Get statistics\Table of weird statistics">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>
